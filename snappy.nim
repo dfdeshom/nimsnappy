@@ -125,16 +125,3 @@ proc uncompress(input:string):string =
     raise newException(SnappyException,$status)
 
   result = output
-    
-
-proc main2()=
-  var input = readFile("LICENSE")
-  echo ("original input len " & $input.len)
-  var compress = compress(input)
-  echo ("compress len " & $compress.len)
-  var decompress = uncompress(compress)
-  echo (decompress==input)
-
-#main()
-echo "\nmain my compress: \n"
-main2()
