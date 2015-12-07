@@ -1,6 +1,6 @@
 # nimsnappy
-Nim wrapper for the snappy compression library. there is also a high-level
-API to `snappy` for easy usage.
+Nim wrapper for the `snappy` compression library. there is also a high-level
+API to for easy usage. The two functions exposed are `compress` and `uncompress`
 
 Example usage:
 

@@ -84,6 +84,7 @@ type
   SnappyException* = object of Exception
     
 proc compress(input:string):string =
+  ## Compress a string using snappy.
   var
     output_length = snappy_max_compressed_length(input.len) 
     output = newString(output_length)
@@ -103,6 +104,8 @@ proc compress(input:string):string =
   result = output
   
 proc uncompress(input:string):string =
+  ## Uncompress a string. The input string has to be
+  ## a string compressed by `snappy`
   let can_compress = snappy_validate_compressed_buffer(input, input.len)
   if can_compress != snappy_status.SNAPPY_OK:
     raise newException(SnappyException,"Can't compress file: " & $can_compress)
