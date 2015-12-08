@@ -83,7 +83,7 @@ proc snappy_validate_compressed_buffer*(compressed: cstring;
 type
   SnappyException* = object of Exception
     
-proc compress(input:string):string =
+proc compress*(input:string):string =
   ## Compress a string using snappy.
   var
     output_length = snappy_max_compressed_length(input.len) 
@@ -103,7 +103,7 @@ proc compress(input:string):string =
   output.setLen(output_length)
   result = output
   
-proc uncompress(input:string):string =
+proc uncompress*(input:string):string =
   ## Uncompress a string. The input string has to be
   ## a string compressed by `snappy`
   let can_compress = snappy_validate_compressed_buffer(input, input.len)
