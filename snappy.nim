@@ -106,9 +106,10 @@ proc compress*(input:string):string =
 proc uncompress*(input:string):string =
   ## Uncompress a string. The input string has to be
   ## a string compressed by `snappy`
-  let can_compress = snappy_validate_compressed_buffer(input, input.len)
-  if can_compress != snappy_status.SNAPPY_OK:
-    raise newException(SnappyException,"Can't compress file: " & $can_compress)
+  let can_uncompress = snappy_validate_compressed_buffer(input, input.len)
+  if can_uncompress != snappy_status.SNAPPY_OK:
+    raise newException(SnappyException,
+                       "Malformed compressed input: " & $can_uncompress)
   
   var
     output_length:int = 0
