@@ -102,30 +102,45 @@ proc compress*(input:string):string =
   # bound the the length
   output.setLen(output_length)
   result = output
-  
-proc uncompress*(input:string):string =
-  ## Uncompress a string. The input string has to be
-  ## a string compressed by `snappy`
-  let can_uncompress = snappy_validate_compressed_buffer(input, input.len)
+
+proc validateAndGetUncompressedLength*(input: cstring, inputLen: int): int =
+  let can_uncompress = snappy_validate_compressed_buffer(input, inputLen)
   if can_uncompress != snappy_status.SNAPPY_OK:
     raise newException(SnappyException,
                        "Malformed compressed input: " & $can_uncompress)
   
-  var
-    output_length:int = 0
-    status = snappy_uncompressed_length(input,
-                                        input.len,
-                                        addr output_length)
+  result = 0
+  var status = snappy_uncompressed_length(input,
+                                        inputLen,
+                                        addr result)
+
   if status != snappy_status.SNAPPY_OK:
     raise newException(SnappyException,$status)
 
-  var output = newString(output_length)
-  status = snappy_uncompress(input,
-                             input.len,
-                             output,
+proc uncompressValidatedInputInto*(input: cstring, result: var string, inputLen: int, output_length: var int, outputOffset = int(0)) =
+  ## Uncompress a string. The input string has to be
+  ## a string compressed by `snappy`.
+  ## This does not do validation. Use `validateAndGetUncompressedLength`
+  ## to validate the input beforehand.
+  result.setLen(outputOffset + output_length)
+  var status = snappy_uncompress(input,
+                             inputLen,
+                             addr(result[outputOffset]),
                              addr output_length)
 
+  result.setLen(outputOffset + outputLength)
+
   if status != snappy_status.SNAPPY_OK:
     raise newException(SnappyException,$status)
 
-  result = output
+proc uncompressInto*(input: cstring, result: var string, inputLen: int) =
+  ## Uncompress a string. The input string has to be
+  ## a string compressed by `snappy`
+  var output_length = validateAndGetUncompressedLength(input, inputLen)
+  uncompressValidatedInputInto(input, result, inputLen, output_length)
+
+proc uncompress*(input: cstring, inputLen: int): string =
+    result = ""
+    input.uncompressInto(result, inputLen)
+
+template uncompress*(input:string):string = uncompress(input, input.len)
