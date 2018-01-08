@@ -92,7 +92,7 @@ proc compress*(input:string):string =
   let status = snappy_compress(input,
                                input.len,
                                output,
-                               addr (output_length))
+                               addr(output_length))
   
   if status != snappy_status.SNAPPY_OK:
     raise newException(SnappyException,$status)
